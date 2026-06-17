@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>WC2026 AI LAB — 월드컵 전술 인텔리전스</title>
+<style>
+  :root{--bg:#0a0f15;--panel:#121a24;--card:#15202c;--line:#26333f;--txt:#eaf0f6;--mut:#9fb2c4;--gold:#f1c40f}
+  *{box-sizing:border-box}
+  body{margin:0;background:#0e1219;color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",Roboto,sans-serif;line-height:1.55}
+  .app{display:flex;min-height:100vh}
+  .sidebar{width:214px;flex:none;background:#141a24;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px;position:sticky;top:0;height:100vh}
+  .brand{font-weight:900;font-size:17px;padding:6px 10px 16px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .brand b{color:var(--gold)}.brand span{color:var(--mut);font-size:12px;font-weight:700}
+  .snav{display:flex;flex-direction:column;gap:4px}
+  .tabbtn{display:flex;align-items:center;gap:11px;font-size:14px;color:var(--mut);padding:10px 12px;border-radius:11px;border:none;background:none;cursor:pointer;text-align:left;transition:.14s;width:100%}
+  .tabbtn i{font-size:18px;font-style:normal;width:22px;text-align:center}
+  .tabbtn:hover{background:#1c2533;color:var(--txt)}
+  .tabbtn.on{background:linear-gradient(90deg,rgba(241,196,15,.18),rgba(241,196,15,.03));color:var(--gold);font-weight:700}
+  .sfoot{margin-top:auto;padding:10px}
+  .main{flex:1;min-width:0}
+  .topbar{display:flex;align-items:center;gap:10px;padding:14px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(14,18,25,.9);backdrop-filter:blur(8px);z-index:10}
+  .topbar h1{margin:0;font-size:16px}.topbar .sp{margin-left:auto}
+  .wrap{max-width:1080px;margin:0 auto;padding:20px}
+  @media(max-width:720px){.app{flex-direction:column}.sidebar{width:100%;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center;border-right:none;border-bottom:1px solid var(--line);padding:9px}.snav{flex-direction:row;flex-wrap:wrap;gap:2px}.tabbtn{padding:7px 10px;font-size:13px}.tabbtn i{display:none}.brand{padding:4px 8px}.sfoot{display:none}}
+  .tab{display:none}.tab.on{display:block}
+  h2.sec{font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin:20px 0 10px}
+  .tag{display:inline-block;font-size:10.5px;font-weight:800;border-radius:20px;padding:2px 8px}
+  .tag.real{background:#7fd6a0;color:#062013}.tag.model{background:#e0c06a;color:#1a1300}
+  .foot{font-size:11px;color:var(--mut);border-top:1px dashed var(--line);padding-top:12px;margin-top:24px;line-height:1.7}
+  .foot a{color:#7fb6ff}.pill{font-size:11px;background:#16212e;border:1px solid var(--line);border-radius:20px;padding:4px 10px}
+  /* home */
+  .hero{text-align:center;padding:40px 16px 22px}
+  .hero .kick{font-size:12px;color:var(--gold);font-weight:800;letter-spacing:2px}
+  .hero h1{font-size:32px;margin:10px 0 8px;line-height:1.15}
+  .hero h1 span{background:linear-gradient(90deg,var(--gold),#ff8a5b);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{color:var(--mut);max-width:600px;margin:0 auto;font-size:14px}
+  .hero .chips{margin-top:13px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px;margin-top:8px}
+  .feature{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px;cursor:pointer;transition:.16s;position:relative}
+  .feature:hover{transform:translateY(-3px);border-color:var(--gold)}
+  .feature.soon{opacity:.6}
+  .feature .ic{font-size:36px;width:100%;height:90px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e2a3a,#141b26);border-radius:12px;margin-bottom:10px}
+  .feature h3{margin:4px 0 5px;font-size:16px}
+  .feature p{margin:0;font-size:12.5px;color:var(--mut);min-height:52px}
+  .feature .badge{position:absolute;top:12px;right:12px;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px}
+  .badge.live{background:#7fd6a0;color:#062013}.badge.soon{background:#26333f;color:var(--mut)}
+  /* dex */
+  .records{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .rec{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;border-top:3px solid var(--gold)}
+  .rec .l{font-size:11px;color:var(--mut)}.rec .v{font-size:19px;font-weight:900;margin:2px 0}.rec .p{font-size:12.5px;font-weight:700}
+  .tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+  .btn{background:var(--panel);color:var(--txt);border:1px solid var(--line);padding:7px 12px;border-radius:20px;font-size:13px;cursor:pointer}
+  .btn.on{background:var(--gold);color:#1a1300;font-weight:800;border-color:var(--gold)}
+  .lb{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 14px}
+  .lr{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #1c2731}.lr:last-child{border-bottom:none}
+  .lr .rk{width:20px;text-align:center;font-weight:900;color:var(--mut)}.lr .rk.top{color:var(--gold)}
+  .lr canvas{border-radius:50%}.lr .nm{flex:1;font-size:13.5px}
+  .lr .bar{flex:1.3;height:8px;background:#0e1822;border-radius:6px;overflow:hidden;max-width:260px}
+  .lr .bar>i{display:block;height:100%;background:linear-gradient(90deg,#f1c40f,#f6d44f);border-radius:6px}
+  .lr .vv{width:84px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums;font-size:13px}
+  .filter{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:11px}
+  .pc{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px;text-align:center;cursor:pointer;transition:.15s}
+  .pc:hover{transform:translateY(-2px);border-color:var(--gold)}
+  .pc .nm{font-weight:700;font-size:13.5px;margin-top:6px}.pc .po{font-size:11px;color:var(--mut)}
+  .pc .mini{display:flex;justify-content:center;gap:9px;margin-top:7px;font-size:11px}.pc .mini b{display:block;font-size:13px;color:var(--gold)}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:40}
+  .modal.on{display:flex}
+  .mbox{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;max-width:380px;width:100%}
+  .mbox .top{display:flex;gap:12px;align-items:center}.mbox h3{margin:0;font-size:19px}
+  .mstat{margin:8px 0}.mstat .l{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px}.mstat .l b{color:var(--gold)}
+  .mstat .bar{height:7px;background:#0e1822;border-radius:6px;overflow:hidden}.mstat .bar>i{display:block;height:100%;background:linear-gradient(90deg,#f1c40f,#f6d44f);border-radius:6px}
+  .x{float:right;cursor:pointer;color:var(--mut);font-size:22px;line-height:1}
+  /* multiverse */
+  .lab{display:flex;gap:14px;flex-wrap:wrap}.col{flex:1 1 320px;min-width:300px}
+  .sc{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:9px;cursor:pointer}
+  .sc.on{border-color:var(--gold);background:#1a2330}
+  .sw{flex:none;width:42px;height:24px;border-radius:20px;background:#26333f;position:relative;transition:.18s;margin-top:2px}
+  .sc.on .sw{background:var(--gold)}.sw::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.18s}.sc.on .sw::after{left:21px}
+  .sc .t{font-weight:700;font-size:13.5px}.sc .d{color:var(--mut);font-size:11.5px;margin-top:2px}.sc .e{font-size:11px;font-weight:800;margin-top:4px}
+  .result{background:linear-gradient(160deg,#15202c,#101921);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .score{display:flex;align-items:center;justify-content:center;gap:18px;margin:6px 0 14px}
+  .score .tm{text-align:center;width:90px}.score .fl{font-size:30px}.score .nm{font-size:13px;color:var(--mut)}
+  .score .sv{font-size:44px;font-weight:900;min-width:44px;text-align:center}.score .x2{color:var(--mut);font-size:20px}
+  .xgbar{height:10px;border-radius:6px;background:#0e1822;display:flex;overflow:hidden}.xgbar .m{background:linear-gradient(90deg,#0a7c3a,#16a34a)}.xgbar .k{background:linear-gradient(90deg,#c8102e,#e23b54)}
+  .prob{display:flex;height:26px;border-radius:7px;overflow:hidden;margin:12px 0 4px;font-size:11px;font-weight:800}
+  .prob .pm{background:#16a34a;color:#04130a}.prob .pd{background:#5a6b7a;color:#fff}.prob .pk{background:#e23b54;color:#fff}
+  .prob span{display:flex;align-items:center;justify-content:center}
+  .narr{background:#101a24;border-left:3px solid var(--gold);border-radius:8px;padding:11px 13px;font-size:13px;margin-top:12px}
+  .soonbox{text-align:center;color:var(--mut);padding:50px 16px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">⚽ <b>WC2026</b><span>AI LAB</span></div>
+  <nav class="snav">
+    <button class="tabbtn on" data-tab="home"><i>🏠</i>홈</button>
+    <button class="tabbtn" data-tab="dex"><i>📇</i>선수 도감</button>
+    <button class="tabbtn" data-tab="mv"><i>🦋</i>평행우주</button>
+    <button class="tabbtn" data-tab="ghost"><i>👻</i>유령 토너먼트</button>
+    <button class="tabbtn" data-tab="oracle"><i>🔮</i>예언 엔진</button>
+    <button class="tabbtn" data-tab="scout"><i>🇰🇷</i>한국 스카우팅</button>
+  </nav>
+  <div class="sfoot"><span class="tag real">REAL · FIFA EFI</span></div>
+</aside>
+<main class="main">
+  <div class="topbar"><h1 id="ptitle">홈</h1><span class="sp"></span><span class="pill">🌍 16팀 · 113명</span></div>
+
+<!-- HOME -->
+<div class="tab on" id="home">
+  <div class="hero">
+    <div class="kick">FIFA EFI · HAWK-EYE 실측 트래킹</div>
+    <h1>월드컵을 <span>AI의 눈</span>으로 만진다</h1>
+    <p>FIFA가 매 경기 공개하는 트래킹 데이터로 — 선수 능력치부터 '일어나지 않은 경기'까지, 직접 클릭하며 탐험하는 전술 실험실.</p>
+    <div class="chips"><span class="pill">🌍 16팀 · 9경기 EFI</span><span class="pill">경기 추가 시 자동 확장</span><span class="tag real">REAL DATA</span></div>
+  </div>
+  <div class="wrap">
+    <div class="fgrid">
+      <div class="feature" data-go="dex"><span class="badge live">LIVE</span><div class="ic">📇</div><h3>선수 능력치 도감</h3><p>실측 능력치 카드 + 대회 랭킹. 손흥민 35.2km/h가 현재 최고속.</p></div>
+      <div class="feature" data-go="mv"><span class="badge live">LIVE</span><div class="ic">🦋</div><h3>평행우주</h3><p>"몬테스가 퇴장 안 했다면?" 변수 하나로 결과를 갈라본다.</p></div>
+      <div class="feature soon" data-go="ghost"><span class="badge soon">곧</span><div class="ic">👻</div><h3>AI 유령 토너먼트</h3><p>팀 EFI DNA로 대진을 미리 끝까지 플레이. 예측 vs 현실.</p></div>
+      <div class="feature soon" data-go="oracle"><span class="badge soon">곧</span><div class="ic">🔮</div><h3>예언 엔진</h3><p>경기 전 반증가능 예언 → 결과 후 자가채점.</p></div>
+      <div class="feature" data-go="scout"><span class="badge live">LIVE</span><div class="ic">🇰🇷</div><h3>한국 스카우팅</h3><p>6/18 멕시코전 공략 대시보드·전술 시뮬·선수 보드.</p></div>
+    </div>
+    <div class="foot">출처: <a href="https://www.fifatrainingcentre.com/en/fifa-world-cup-2026/match-report-hub.php">FIFA EFI Match Report Hub</a>. 능력치·스탯=✅실측. 평행우주/유령/예언=실측 기반 <b>AI 설계 모델</b> 출력(베팅용 아님).</div>
+  </div>
+</div>
+
+<!-- DEX -->
+<div class="tab" id="dex"><div class="wrap">
+  <h2 class="sec">🏆 대회 기록 (현재까지) <span class="tag real">REAL · FIFA EFI</span></h2>
+  <div class="records" id="records"></div>
+  <h2 class="sec">📊 랭킹 리더보드</h2>
+  <div class="tabs" id="lbtabs"></div><div class="lb" id="lb"></div>
+  <h2 class="sec">🗂️ 전체 도감</h2>
+  <div class="filter" id="filter"></div><div class="grid" id="grid"></div>
+  <div class="foot">✅ FIFA EFI(Hawk-Eye) 실측 · 현재 3경기(🇲🇽🇿🇦·🇰🇷🇨🇿·🇧🇷🇲🇦) 51명 · 경기 추가 시 자동 확장. 얼굴은 식별용 캐릭터.</div>
+</div></div>
+
+<!-- MULTIVERSE -->
+<div class="tab" id="mv"><div class="wrap">
+  <div style="text-align:center;padding:8px 0 4px"><h2 style="margin:0;font-size:23px">🦋 평행우주</h2>
+    <p style="color:var(--mut);font-size:13px;margin:6px 0 0">6/18 <b>멕시코 vs 한국</b> — 스위치를 켜며 평행우주를 만들어보세요. <span class="tag model">AI 모델·추정</span></p></div>
+  <div class="lab">
+    <div class="col"><h2 class="sec">🎚️ 시나리오 스위치</h2><div id="scenarios"></div></div>
+    <div class="col"><h2 class="sec">🌌 이 우주의 결과</h2>
+      <div class="result">
+        <div class="score"><div class="tm"><div class="fl">🇲🇽</div><div class="nm">멕시코</div></div><div class="sv" id="sm">1</div><div class="x2">:</div><div class="sv" id="sk">1</div><div class="tm"><div class="fl">🇰🇷</div><div class="nm">한국</div></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>🇲🇽 xG <b id="xgm">1.35</b></span><span><b id="xgk">1.15</b> xG 🇰🇷</span></div>
+        <div class="xgbar"><i class="m" id="bm" style="width:54%"></i><i class="k" id="bk" style="width:46%"></i></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-top:8px"><span>멕시코 승</span><span>무</span><span>한국 승</span></div>
+        <div class="prob"><span class="pm" id="pm">42%</span><span class="pd" id="pd">26%</span><span class="pk" id="pk">32%</span></div>
+        <div class="narr" id="narr"></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">⚠️ 스코어·확률은 FIFA EFI 실측에서 도출한 <b>AI 설계 모델</b> 추정 — 실제 결과 보장 아님.</div>
+</div></div>
+
+<div class="tab" id="ghost"><div class="soonbox">👻 <b>유령 토너먼트</b> — 준비 중. 팀 EFI DNA로 대진을 자동 시뮬해 예측 순위를 만들어요.</div></div>
+<div class="tab" id="oracle"><div class="soonbox">🔮 <b>예언 엔진</b> — 준비 중. 6/18 멕시코-한국 예언 + 경기 후 자가채점.</div></div>
+
+<!-- SCOUT -->
+<div class="tab" id="scout"><div class="wrap">
+  <div class="hero" style="padding:22px 24px">
+    <div class="kick">6/18 멕시코 🇲🇽 vs 한국 🇰🇷 · 스카우팅 패키지</div>
+    <h1 style="font-size:30px">한국 대표팀 <span>공략 키트</span></h1>
+    <p>FIFA EFI 실측 기반으로 만든 멕시코전 인텔. 카드를 누르면 새 탭에서 열립니다.</p>
+  </div>
+  <div class="fgrid">
+    <a class="feature" href="../KORvMEX_2026/KORvMEX_dashboard.html" target="_blank" rel="noopener"><span class="badge live">REAL</span><div class="ic">📊</div><h3>공략 대시보드</h3><p>멕시코·한국 EFI 실측 비교 + 약점·기회 요약.</p></a>
+    <a class="feature" href="../KORvMEX_2026/KORvMEX_sim.html" target="_blank" rel="noopener"><span class="badge live">SIM</span><div class="ic">🎮</div><h3>전술 시뮬</h3><p>예측 게임플랜 애니메이션 — 오프사이드 보정·영상 녹화.</p></a>
+    <a class="feature" href="../KORvMEX_2026/KORvMEX_player_board.html" target="_blank" rel="noopener"><span class="badge live">BOARD</span><div class="ic">🧭</div><h3>선수 동선 보드</h3><p>선수 히트맵·동선 인터랙티브 보드.</p></a>
+    <a class="feature" href="../KORvMEX_2026/00_브리핑홈.html" target="_blank" rel="noopener"><span class="badge">HUB</span><div class="ic">🗂️</div><h3>브리핑 홈</h3><p>위 자료를 한데 모은 스카우팅 허브.</p></a>
+  </div>
+  <div class="foot">로컬 파일 링크입니다 — <code>KORvMEX_2026</code> 폴더가 이 사이트 폴더와 같은 위치(Downloads)에 있어야 열립니다.</div>
+</div></div>
+
+</main>
+</div>
+<div class="modal" id="modal"><div class="mbox" id="mbox"></div></div>
+
+<script>
+/* ===== DATA (FIFA EFI 실측) ===== */
+const TEAM={KOR:{c:'#c8102e',fl:'🇰🇷'},MEX:{c:'#0a7c3a',fl:'🇲🇽'},RSA:{c:'#e8a300',fl:'🇿🇦'},CZE:{c:'#1b4a8a',fl:'🇨🇿'},BRA:{c:'#f5c518',fl:'🇧🇷'},MAR:{c:'#c0392b',fl:'🇲🇦'},USA:{c:'#2540a0',fl:'🇺🇸'},PAR:{c:'#d52b1e',fl:'🇵🇾'},GER:{c:'#7d8590',fl:'🇩🇪'},CUW:{c:'#0a5bd0',fl:'🇨🇼'},NED:{c:'#ea5b1f',fl:'🇳🇱'},JAP:{c:'#10204f',fl:'🇯🇵'},SWE:{c:'#4a90d9',fl:'🇸🇪'},TUN:{c:'#b81d28',fl:'🇹🇳'},CIV:{c:'#11a64a',fl:'🇨🇮'},ECU:{c:'#ffce2b',fl:'🇪🇨'}};
+const KS='#f6cfa6',MS='#d9a06f',RS='#7a5236',CS='#f0d2b0';
+const F=(s,h,st,e,m,b,br)=>({s,h,st,e,m,b,br});
+const P=[
+ {t:'KOR',num:7,n:'손흥민',po:'FW',spd:35.2,spr:38,hsr:58,dist:7.0,lb:3,rg:0,g:0,f:F(KS,'#241a10','side','smile','grin',0,0)},
+ {t:'KOR',num:22,n:'설영우',po:'RWB',spd:31.8,spr:53,hsr:115,dist:11.28,lb:4,rg:2,g:0,f:F(KS,'#2a1d12','fluffy','round','grin',0,0)},
+ {t:'KOR',num:4,n:'김민재',po:'CB',spd:31.9,spr:35,hsr:113,dist:10.12,lb:6,rg:9,g:0,f:F(KS,'#171008','crop','sharp','flat','stubble',1)},
+ {t:'KOR',num:6,n:'황인범',po:'MF',spd:28.5,spr:36,hsr:111,dist:9.52,lb:11,rg:3,g:1,f:F(KS,'#241a10','fringe','calm','smile',0,0)},
+ {t:'KOR',num:19,n:'이강인',po:'AM',spd:28.8,spr:22,hsr:88,dist:9.53,lb:11,rg:0,g:0,f:F(KS,'#241a10','curtainL','sharp','smile',0,0)},
+ {t:'KOR',num:3,n:'이기혁',po:'CB',spd:29.2,spr:51,hsr:158,dist:10.66,lb:13,rg:7,g:0,f:F(KS,'#2a1d12','blunt','calm','flat',0,0)},
+ {t:'KOR',num:2,n:'이한범',po:'CB',spd:30.1,spr:39,hsr:117,dist:10.26,lb:11,rg:8,g:0,f:F(KS,'#2a1d12','curtain','calm','smile',0,0)},
+ {t:'KOR',num:8,n:'백승호',po:'MF',spd:29.3,spr:20,hsr:115,dist:9.35,lb:12,rg:2,g:0,f:F(KS,'#2a1d12','neat','calm','flat',0,0)},
+ {t:'KOR',num:18,n:'오현규',po:'FW',spd:29.1,spr:15,hsr:31,dist:3.04,lb:0,rg:0,g:1,f:F(KS,'#241a10','crop','round','grin',0,0)},
+ {t:'MEX',num:9,n:'R.히메네스',po:'FW',spd:33.3,spr:33,hsr:67,dist:7.50,lb:2,rg:2,g:1,f:F(MS,'#0f0a05','neat','sharp','flat','mustache',0)},
+ {t:'MEX',num:16,n:'키뇨네스',po:'FW',spd:32.9,spr:42,hsr:115,dist:8.83,lb:12,rg:1,g:1,f:F('#cf9760','#0f0a05','crop','sharp','grin','stubble',0)},
+ {t:'MEX',num:25,n:'알바라도',po:'RW',spd:32.2,spr:43,hsr:116,dist:10.03,lb:8,rg:5,g:0,f:F(MS,'#100b06','crop','round','smile',0,0)},
+ {t:'MEX',num:5,n:'바스케스',po:'CB',spd:27.9,spr:33,hsr:102,dist:10.05,lb:13,rg:3,g:0,f:F('#cf9760','#0f0a05','neat','sharp','flat','stubble',1)},
+ {t:'MEX',num:8,n:'피달고',po:'MF',spd:30.8,spr:49,hsr:132,dist:8.58,lb:4,rg:1,g:0,f:F(MS,'#100b06','fluffy','round','smile',0,0)},
+ {t:'MEX',num:15,n:'레예스',po:'DF',spd:30.0,spr:27,hsr:117,dist:10.27,lb:9,rg:3,g:0,f:F(MS,'#100b06','fringe','calm','flat',0,0)},
+ {t:'MEX',num:23,n:'가야르도',po:'LB',spd:30.3,spr:29,hsr:86,dist:9.69,lb:5,rg:8,g:0,f:F(MS,'#0f0a05','side','calm','flat','mustache',0)},
+ {t:'MEX',num:6,n:'리라',po:'MF',spd:31.4,spr:27,hsr:103,dist:8.88,lb:10,rg:1,g:0,f:F(MS,'#100b06','crop','calm','smile',0,0)},
+ {t:'MEX',num:3,n:'몬테스',po:'CB',spd:30.1,spr:25,hsr:72,dist:8.55,lb:12,rg:4,g:0,f:F('#dca877','#c9a86a','neat','sharp','flat','stubble',1)},
+ {t:'RSA',num:5,n:'음바타',po:'MF',spd:34.4,spr:24,hsr:59,dist:3.97,lb:1,rg:0,g:0,f:F(RS,'#0c0805','crop','round','smile',0,0)},
+ {t:'RSA',num:15,n:'레이너스',po:'FW',spd:34.1,spr:41,hsr:82,dist:8.15,lb:2,rg:0,g:0,f:F(RS,'#0c0805','crop','sharp','grin',0,0)},
+ {t:'RSA',num:20,n:'무다우',po:'DF',spd:33.3,spr:48,hsr:100,dist:9.34,lb:4,rg:2,g:0,f:F('#6b4a32','#0c0805','crop','calm','flat','stubble',0)},
+ {t:'RSA',num:4,n:'모케나',po:'MF',spd:31.4,spr:44,hsr:136,dist:9.86,lb:11,rg:4,g:0,f:F(RS,'#0c0805','fringe','calm','smile',0,0)},
+ {t:'RSA',num:21,n:'오콘',po:'DF',spd:31.6,spr:52,hsr:119,dist:9.56,lb:6,rg:9,g:0,f:F('#6b4a32','#0c0805','crop','sharp','flat',0,1)},
+ {t:'RSA',num:19,n:'시비시',po:'DF',spd:29.9,spr:38,hsr:101,dist:9.39,lb:14,rg:5,g:0,f:F(RS,'#0c0805','crop','calm','flat','stubble',0)},
+ {t:'RSA',num:14,n:'음보카지',po:'DF',spd:31.5,spr:43,hsr:91,dist:8.87,lb:3,rg:5,g:0,f:F('#6b4a32','#0c0805','crop','sharp','flat',0,0)},
+ {t:'RSA',num:9,n:'포스터',po:'FW',spd:31.2,spr:16,hsr:66,dist:5.97,lb:0,rg:0,g:0,f:F(RS,'#0c0805','crop','round','grin','stubble',0)},
+ {t:'CZE',num:6,n:'할로우펙',po:'DF',spd:34.0,spr:46,hsr:141,dist:10.87,lb:6,rg:9,g:0,f:F(CS,'#3a2a18','neat','sharp','flat','stubble',1)},
+ {t:'CZE',num:17,n:'프로보드',po:'MF',spd:33.3,spr:45,hsr:109,dist:7.93,lb:3,rg:2,g:0,f:F(CS,'#6b4a28','fringe','calm','smile',0,0)},
+ {t:'CZE',num:5,n:'쿠팔',po:'DF',spd:30.6,spr:48,hsr:145,dist:11.39,lb:3,rg:2,g:0,f:F(CS,'#2a1d10','neat','sharp','flat','stubble',0)},
+ {t:'CZE',num:24,n:'소이카',po:'MF',spd:29.9,spr:50,hsr:163,dist:10.70,lb:6,rg:3,g:0,f:F(CS,'#caa86a','fluffy','calm','smile',0,0)},
+ {t:'CZE',num:22,n:'소우첵',po:'MF',spd:27.5,spr:30,hsr:153,dist:11.83,lb:6,rg:1,g:0,f:F(CS,'#3a2a18','crop','calm','flat','stubble',1)},
+ {t:'CZE',num:7,n:'크레이치',po:'DF',spd:26.5,spr:27,hsr:136,dist:10.88,lb:8,rg:3,g:1,f:F(CS,'#caa86a','neat','sharp','flat',0,1)},
+ {t:'CZE',num:20,n:'젤레니',po:'DF',spd:30.4,spr:49,hsr:96,dist:10.85,lb:7,rg:4,g:0,f:F(CS,'#3a2a18','neat','calm','flat',0,0)},
+ {t:'CZE',num:10,n:'시크',po:'FW',spd:28.9,spr:28,hsr:90,dist:8.05,lb:0,rg:0,g:0,f:F(CS,'#2a1d10','swept','sharp','grin','stubble',0)},
+ {t:'CZE',num:18,n:'사딜렉',po:'MF',spd:29.3,spr:30,hsr:71,dist:3.92,lb:2,rg:1,g:0,f:F(CS,'#3a2a18','fringe','calm','smile',0,0)},
+ {t:'BRA',num:7,n:'비니시우스',po:'FW',spd:34.1,spr:60,hsr:117,dist:10.10,lb:5,rg:1,g:1,f:F('#6b4a32','#0a0806','fluffy','sharp','grin',0,0)},
+ {t:'BRA',num:11,n:'하피냐',po:'FW',spd:33.1,spr:80,hsr:152,dist:11.65,lb:2,rg:1,g:0,f:F('#8a5a3a','#1a120a','crop','sharp','grin','stubble',0)},
+ {t:'BRA',num:4,n:'마르키뉴스',po:'CB',spd:33.3,spr:26,hsr:98,dist:9.79,lb:7,rg:8,g:0,f:F('#a06a44','#15100a','crop','sharp','flat',0,1)},
+ {t:'BRA',num:3,n:'G.마갈량이스',po:'CB',spd:31.0,spr:30,hsr:122,dist:10.18,lb:10,rg:3,g:0,f:F('#6b4a32','#0c0805','crop','calm','flat','stubble',0)},
+ {t:'BRA',num:8,n:'B.기마랑이스',po:'MF',spd:28.0,spr:32,hsr:133,dist:9.81,lb:5,rg:2,g:0,f:F('#a06a44','#15100a','fringe','calm','smile','stubble',0)},
+ {t:'BRA',num:16,n:'더글라스 산투스',po:'LB',spd:30.9,spr:51,hsr:145,dist:10.53,lb:17,rg:8,g:0,f:F('#c8945f','#15100a','crop','calm','flat',0,0)},
+ {t:'BRA',num:5,n:'카제미루',po:'MF',spd:26.5,spr:11,hsr:55,dist:5.32,lb:4,rg:4,g:0,f:F('#6b4a32','#0c0805','crop','sharp','flat','stubble',1)},
+ {t:'BRA',num:25,n:'이고르 치아구',po:'FW',spd:33.2,spr:43,hsr:95,dist:7.50,lb:0,rg:3,g:0,f:F('#8a5a3a','#15100a','crop','round','grin',0,0)},
+ {t:'MAR',num:2,n:'하키미',po:'RB',spd:30.8,spr:53,hsr:112,dist:10.15,lb:9,rg:5,g:0,f:F('#c8945f','#15100a','fluffy','sharp','grin',0,0)},
+ {t:'MAR',num:11,n:'사이바리',po:'MF',spd:33.7,spr:76,hsr:120,dist:10.12,lb:2,rg:1,g:1,f:F('#a06a44','#15100a','crop','sharp','grin',0,0)},
+ {t:'MAR',num:6,n:'부아디',po:'MF',spd:31.6,spr:42,hsr:142,dist:11.87,lb:11,rg:4,g:0,f:F('#6b4a32','#0c0805','fringe','calm','smile',0,0)},
+ {t:'MAR',num:24,n:'엘아이나위',po:'MF',spd:30.2,spr:46,hsr:134,dist:11.78,lb:13,rg:7,g:0,f:F('#8a5a3a','#15100a','crop','calm','flat','stubble',0)},
+ {t:'MAR',num:10,n:'브라힘 디아스',po:'AM',spd:31.1,spr:32,hsr:83,dist:6.68,lb:3,rg:1,g:0,f:F('#cf9760','#1a120a','side','sharp','smile',0,0)},
+ {t:'MAR',num:14,n:'이사 디오프',po:'CB',spd:32.0,spr:22,hsr:94,dist:10.13,lb:10,rg:5,g:0,f:F('#5a3a26','#0c0805','crop','sharp','flat',0,1)},
+ {t:'MAR',num:23,n:'엘칸누스',po:'MF',spd:33.2,spr:38,hsr:114,dist:8.55,lb:6,rg:4,g:0,f:F('#8a5a3a','#15100a','fringe','calm','smile',0,0)},
+ {t:'MAR',num:3,n:'마즈라위',po:'DF',spd:31.3,spr:33,hsr:79,dist:8.04,lb:11,rg:3,g:0,f:F('#a06a44','#15100a','crop','calm','flat','stubble',0)},
+ /* === USA 4-1 PAR (M04) === */
+ {t:'USA',num:5,n:'A.로빈슨',po:'LB',spd:34.0,spr:57,hsr:171,dist:11.93,lb:12,rg:3,g:0,f:F('#6b4a32','#0c0805','crop','sharp','flat','stubble',0)},
+ {t:'USA',num:8,n:'맥케니',po:'MF',spd:31.7,spr:63,hsr:149,dist:11.83,lb:9,rg:1,g:0,f:F('#8a5a3a','#caa86a','crop','sharp','grin','stubble',0)},
+ {t:'USA',num:4,n:'T.아담스',po:'MF',spd:30.5,spr:50,hsr:136,dist:11.21,lb:17,rg:11,g:0,f:F('#5a3a26','#0c0805','crop','calm','flat',0,0)},
+ {t:'USA',num:2,n:'데스트',po:'RB',spd:32.3,spr:53,hsr:115,dist:8.82,lb:7,rg:0,g:0,f:F('#a06a44','#1a120a','fluffy','round','smile',0,0)},
+ {t:'USA',num:20,n:'발로건',po:'FW',spd:30.8,spr:43,hsr:75,dist:7.74,lb:0,rg:1,g:2,f:F('#6b4a32','#0c0805','crop','sharp','grin',0,0)},
+ {t:'USA',num:10,n:'풀리식',po:'FW',spd:31.6,spr:28,hsr:73,dist:5.91,lb:3,rg:0,g:0,f:F(KS,'#3a2a18','swept','sharp','flat','stubble',0)},
+ {t:'USA',num:3,n:'리처즈',po:'CB',spd:30.6,spr:21,hsr:125,dist:10.83,lb:8,rg:6,g:0,f:F('#7a5236','#0c0805','crop','calm','flat','stubble',0)},
+ {t:'USA',num:16,n:'프리먼',po:'DF',spd:29.0,spr:37,hsr:133,dist:11.00,lb:23,rg:5,g:0,f:F('#8a5a3a','#15100a','crop','round','smile',0,0)},
+ /* === PAR (M04) === */
+ {t:'PAR',num:19,n:'엔시소',po:'FW',spd:33.3,spr:42,hsr:128,dist:10.68,lb:3,rg:3,g:0,f:F(MS,'#1a120a','crop','sharp','grin',0,0)},
+ {t:'PAR',num:14,n:'쿠바스',po:'MF',spd:30.1,spr:48,hsr:174,dist:11.79,lb:5,rg:6,g:0,f:F(MS,'#100b06','crop','calm','flat','stubble',0)},
+ {t:'PAR',num:4,n:'카세레스',po:'DF',spd:32.0,spr:40,hsr:92,dist:8.40,lb:6,rg:4,g:0,f:F('#cf9760','#100b06','crop','sharp','flat','stubble',1)},
+ {t:'PAR',num:8,n:'D.고메스',po:'MF',spd:31.6,spr:48,hsr:132,dist:9.39,lb:4,rg:5,g:0,f:F(MS,'#100b06','fluffy','round','smile',0,0)},
+ {t:'PAR',num:11,n:'마우리시오',po:'MF',spd:27.6,spr:32,hsr:95,dist:5.91,lb:3,rg:3,g:1,f:F(MS,'#100b06','fringe','calm','smile',0,0)},
+ /* === GER 7-1 CUW (M10) === */
+ {t:'GER',num:19,n:'자네',po:'MF',spd:33.5,spr:59,hsr:122,dist:10.24,lb:3,rg:2,g:0,f:F('#6b4a32','#0c0805','crop','sharp','grin',0,0)},
+ {t:'GER',num:7,n:'하베르츠',po:'FW',spd:32.9,spr:55,hsr:150,dist:11.60,lb:2,rg:0,g:2,f:F(KS,'#3a2a18','neat','sharp','flat',0,0)},
+ {t:'GER',num:5,n:'파블로비치',po:'MF',spd:29.8,spr:59,hsr:180,dist:12.14,lb:21,rg:3,g:0,f:F(CS,'#2a1d10','fluffy','calm','smile',0,0)},
+ {t:'GER',num:10,n:'무시알라',po:'MF',spd:31.8,spr:30,hsr:90,dist:7.87,lb:6,rg:3,g:1,f:F('#8a5a3a','#1a120a','fluffy','round','grin',0,0)},
+ {t:'GER',num:18,n:'N.브라운',po:'DF',spd:33.8,spr:38,hsr:111,dist:8.80,lb:5,rg:2,g:1,f:F('#6b4a32','#15100a','crop','sharp','flat',0,0)},
+ {t:'GER',num:17,n:'비르츠',po:'MF',spd:28.5,spr:46,hsr:146,dist:11.09,lb:12,rg:4,g:0,f:F(KS,'#caa86a','swept','sharp','smile',0,0)},
+ {t:'GER',num:23,n:'은메차',po:'MF',spd:31.0,spr:35,hsr:111,dist:8.35,lb:9,rg:6,g:1,f:F('#5a3a26','#0c0805','crop','calm','flat',0,0)},
+ {t:'GER',num:15,n:'슐로터베크',po:'CB',spd:31.8,spr:26,hsr:95,dist:9.93,lb:22,rg:7,g:1,f:F(CS,'#caa86a','curtain','calm','flat','stubble',0)},
+ {t:'GER',num:26,n:'운다프',po:'FW',spd:27.4,spr:12,hsr:51,dist:3.35,lb:1,rg:0,g:1,f:F(KS,'#2a1d10','crop','round','grin','stubble',0)},
+ /* === CUW (M10) === */
+ {t:'CUW',num:5,n:'플로라너스',po:'DF',spd:33.3,spr:50,hsr:119,dist:10.46,lb:5,rg:0,g:0,f:F('#6b4a32','#0c0805','crop','sharp','flat',0,0)},
+ {t:'CUW',num:8,n:'코메넨시아',po:'MF',spd:32.0,spr:47,hsr:124,dist:10.85,lb:4,rg:12,g:1,f:F('#7a5236','#0c0805','crop','round','grin',0,0)},
+ {t:'CUW',num:24,n:'폰빌러',po:'DF',spd:32.1,spr:57,hsr:86,dist:9.73,lb:7,rg:4,g:0,f:F('#5a3a26','#0c0805','crop','calm','flat','stubble',0)},
+ {t:'CUW',num:7,n:'J.바쿠나',po:'MF',spd:30.7,spr:49,hsr:109,dist:10.06,lb:13,rg:5,g:0,f:F('#6b4a32','#0c0805','crop','sharp','flat','stubble',0)},
+ /* === NED 2-2 JAP (M11) === */
+ {t:'NED',num:8,n:'흐라벤베르흐',po:'MF',spd:35.6,spr:25,hsr:91,dist:8.31,lb:9,rg:4,g:0,f:F('#6b4a32','#0c0805','crop','sharp','grin',0,0)},
+ {t:'NED',num:24,n:'서머빌',po:'FW',spd:34.3,spr:30,hsr:81,dist:7.36,lb:9,rg:1,g:1,f:F('#7a5236','#0c0805','crop','round','grin',0,0)},
+ {t:'NED',num:4,n:'반다이크',po:'CB',spd:32.9,spr:23,hsr:66,dist:8.41,lb:14,rg:5,g:1,f:F('#6b4a32','#0c0805','crop','sharp','flat','stubble',1)},
+ {t:'NED',num:22,n:'둠프리스',po:'RB',spd:31.1,spr:37,hsr:116,dist:10.13,lb:8,rg:2,g:0,f:F('#5a3a26','#0c0805','crop','calm','smile',0,0)},
+ {t:'NED',num:21,n:'더용',po:'MF',spd:29.3,spr:27,hsr:99,dist:10.30,lb:13,rg:3,g:0,f:F(KS,'#3a2a18','swept','calm','smile',0,0)},
+ {t:'NED',num:15,n:'반더벤',po:'CB',spd:32.4,spr:31,hsr:74,dist:9.31,lb:7,rg:1,g:0,f:F(KS,'#2a1d10','neat','sharp','flat',0,0)},
+ /* === JAP (M11) === */
+ {t:'JAP',num:11,n:'마에다',po:'FW',spd:33.5,spr:66,hsr:132,dist:8.25,lb:0,rg:0,g:0,f:F('#ecc9a0','#0a0805','crop','sharp','grin',0,0)},
+ {t:'JAP',num:13,n:'나카무라',po:'MF',spd:29.6,spr:53,hsr:163,dist:11.31,lb:8,rg:4,g:1,f:F('#ecc9a0','#0a0805','fringe','round','smile',0,0)},
+ {t:'JAP',num:15,n:'카마다',po:'MF',spd:31.4,spr:27,hsr:100,dist:10.57,lb:10,rg:2,g:0,f:F('#ecc9a0','#0a0805','neat','calm','flat',0,0)},
+ {t:'JAP',num:24,n:'사노',po:'MF',spd:29.3,spr:37,hsr:125,dist:11.07,lb:5,rg:5,g:0,f:F('#ecc9a0','#0a0805','crop','calm','flat',0,0)},
+ {t:'JAP',num:8,n:'쿠보',po:'MF',spd:31.2,spr:32,hsr:85,dist:7.81,lb:6,rg:1,g:0,f:F('#ecc9a0','#0a0805','fringe','sharp','smile',0,0)},
+ {t:'JAP',num:21,n:'이토 히로키',po:'DF',spd:32.0,spr:22,hsr:97,dist:9.80,lb:12,rg:5,g:0,f:F('#ecc9a0','#0a0805','crop','calm','flat',0,0)},
+ /* === SWE 5-1 TUN (M12) === */
+ {t:'SWE',num:17,n:'요케레스',po:'FW',spd:32.4,spr:43,hsr:89,dist:10.60,lb:2,rg:0,g:1,f:F('#a06a44','#1a120a','crop','sharp','grin','stubble',0)},
+ {t:'SWE',num:9,n:'이사크',po:'FW',spd:32.6,spr:39,hsr:87,dist:8.53,lb:3,rg:3,g:1,f:F('#8a5a3a','#15100a','fluffy','sharp','flat',0,0)},
+ {t:'SWE',num:18,n:'아야리',po:'MF',spd:29.3,spr:29,hsr:121,dist:10.85,lb:5,rg:9,g:2,f:F(MS,'#100b06','crop','calm','smile',0,0)},
+ {t:'SWE',num:21,n:'베른하르드손',po:'DF',spd:30.6,spr:36,hsr:97,dist:10.12,lb:5,rg:3,g:0,f:F(CS,'#caa86a','neat','calm','flat',0,0)},
+ {t:'SWE',num:2,n:'라게르비엘케',po:'CB',spd:28.6,spr:28,hsr:128,dist:10.71,lb:12,rg:4,g:0,f:F(CS,'#3a2a18','crop','sharp','flat','stubble',0)},
+ {t:'SWE',num:10,n:'뉘그렌',po:'MF',spd:31.5,spr:30,hsr:117,dist:8.51,lb:3,rg:2,g:0,f:F(CS,'#caa86a','swept','round','smile',0,0)},
+ /* === TUN (M12) === */
+ {t:'TUN',num:2,n:'알리 아브디',po:'DF',spd:33.9,spr:56,hsr:105,dist:10.13,lb:5,rg:6,g:0,f:F('#cf9760','#100b06','crop','sharp','flat','stubble',0)},
+ {t:'TUN',num:8,n:'엘리아스 사드',po:'FW',spd:32.1,spr:56,hsr:120,dist:9.26,lb:1,rg:1,g:0,f:F('#a06a44','#15100a','fluffy','sharp','grin',0,0)},
+ {t:'TUN',num:21,n:'벤 흐미다',po:'DF',spd:32.2,spr:38,hsr:91,dist:9.83,lb:21,rg:7,g:0,f:F('#cf9760','#100b06','crop','calm','flat','stubble',0)},
+ {t:'TUN',num:25,n:'슬리마네',po:'MF',spd:28.5,spr:41,hsr:126,dist:10.14,lb:2,rg:1,g:0,f:F(MS,'#100b06','crop','calm','flat',0,0)},
+ {t:'TUN',num:4,n:'레키크',po:'DF',spd:30.7,spr:33,hsr:97,dist:9.87,lb:13,rg:5,g:1,f:F('#cf9760','#100b06','crop','sharp','flat','stubble',1)},
+ {t:'TUN',num:10,n:'메즈브리',po:'MF',spd:31.7,spr:25,hsr:103,dist:10.38,lb:16,rg:5,g:0,f:F('#b5784a','#100b06','fluffy','sharp','grin','stubble',0)},
+ /* === CIV 1-0 ECU (M09) === */
+ {t:'CIV',num:24,n:'B.투레',po:'FW',spd:34.6,spr:32,hsr:84,dist:6.87,lb:2,rg:0,g:0,f:F('#5a3a26','#0c0805','crop','sharp','grin',0,0)},
+ {t:'CIV',num:11,n:'얀 디오망드',po:'FW',spd:33.6,spr:52,hsr:94,dist:9.40,lb:13,rg:4,g:0,f:F('#4a2f1e','#0c0805','crop','sharp','grin',0,0)},
+ {t:'CIV',num:8,n:'케시에',po:'MF',spd:29.2,spr:45,hsr:140,dist:11.31,lb:17,rg:4,g:0,f:F('#6b4a32','#0c0805','crop','calm','flat','stubble',1)},
+ {t:'CIV',num:5,n:'싱고',po:'DF',spd:33.3,spr:32,hsr:88,dist:9.61,lb:19,rg:7,g:0,f:F('#5a3a26','#0c0805','crop','sharp','flat',0,0)},
+ {t:'CIV',num:19,n:'페페',po:'FW',spd:31.9,spr:48,hsr:114,dist:8.42,lb:4,rg:0,g:0,f:F('#6b4a32','#0c0805','crop','calm','grin','stubble',0)},
+ {t:'CIV',num:15,n:'아마드 디알로',po:'FW',spd:30.3,spr:25,hsr:55,dist:4.33,lb:5,rg:1,g:1,f:F('#6b4a32','#0c0805','crop','round','grin',0,0)},
+ /* === ECU (M09) === */
+ {t:'ECU',num:14,n:'알란 민다',po:'MF',spd:35.5,spr:31,hsr:80,dist:6.17,lb:2,rg:2,g:0,f:F('#6b4a32','#0c0805','fluffy','sharp','grin',0,0)},
+ {t:'ECU',num:15,n:'페드로 비테',po:'MF',spd:28.5,spr:44,hsr:183,dist:11.47,lb:20,rg:5,g:0,f:F(MS,'#100b06','crop','calm','flat',0,0)},
+ {t:'ECU',num:3,n:'인카피에',po:'CB',spd:31.5,spr:54,hsr:121,dist:10.71,lb:4,rg:7,g:0,f:F('#b5784a','#100b06','crop','sharp','flat','stubble',0)},
+ {t:'ECU',num:23,n:'카이세도',po:'MF',spd:30.5,spr:34,hsr:129,dist:10.82,lb:17,rg:8,g:0,f:F('#5a3a26','#0c0805','crop','calm','flat',0,0)},
+ {t:'ECU',num:19,n:'플라타',po:'FW',spd:31.0,spr:51,hsr:128,dist:11.06,lb:9,rg:3,g:0,f:F('#6b4a32','#0c0805','fluffy','sharp','grin',0,0)},
+ {t:'ECU',num:6,n:'파초',po:'CB',spd:32.7,spr:32,hsr:81,dist:8.90,lb:16,rg:5,g:0,f:F('#5a3a26','#0c0805','crop','sharp','flat','stubble',0)}
+];
+
+/* ===== FACES ===== */
+const _fc={};
+function faceCanvas(cfg){const k=JSON.stringify(cfg);if(_fc[k])return _fc[k];const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');const ey=118;
+  function eye(cx,fl){x.save();x.translate(cx,ey);if(fl)x.scale(-1,1);
+    if(cfg.eyes==='smile'){x.strokeStyle='#23150f';x.lineWidth=7;x.lineCap='round';x.beginPath();x.arc(0,7,17,Math.PI*1.15,Math.PI*1.85);x.stroke();}
+    else{x.fillStyle='#fff';x.beginPath();x.ellipse(0,0,17,cfg.eyes==='sharp'?14:19,0,0,7);x.fill();x.strokeStyle='#23150f';x.lineWidth=4;x.stroke();
+      const g=x.createRadialGradient(0,2,2,0,3,13);g.addColorStop(0,'#000');g.addColorStop(.45,cfg.iris||'#3a2417');g.addColorStop(1,'#120a05');x.fillStyle=g;x.beginPath();x.ellipse(1,3,10,cfg.eyes==='sharp'?10:13,0,0,7);x.fill();
+      x.fillStyle='#fff';x.beginPath();x.ellipse(-3,-2,3.5,4.5,0,0,7);x.fill();x.strokeStyle='#23150f';x.lineWidth=6;x.lineCap='round';x.beginPath();
+      if(cfg.eyes==='sharp'){x.moveTo(-18,-8);x.quadraticCurveTo(0,-17,19,-4);}else{x.moveTo(-17,-11);x.quadraticCurveTo(0,-19,17,-11);}x.stroke();}x.restore();}
+  eye(84,false);eye(172,true);x.strokeStyle='#1c1108';x.lineWidth=7;x.lineCap='round';
+  [[84],[172]].forEach(([cx])=>{x.beginPath();x.moveTo(cx-19,84);x.quadraticCurveTo(cx,75-(cfg.brow||0)*7,cx+19,84+(cfg.brow||0)*5);x.stroke();});
+  x.strokeStyle='#c98e63';x.lineWidth=3.5;x.beginPath();x.moveTo(128,150);x.lineTo(124,161);x.stroke();x.strokeStyle='#8a3f2c';x.lineWidth=5;x.lineCap='round';x.beginPath();
+  if(cfg.mouth==='grin'){x.moveTo(107,188);x.quadraticCurveTo(128,204,149,188);x.stroke();x.fillStyle='#fff';x.beginPath();x.moveTo(110,190);x.quadraticCurveTo(128,201,146,190);x.quadraticCurveTo(128,196,110,190);x.fill();}
+  else if(cfg.mouth==='flat'){x.moveTo(116,191);x.lineTo(140,191);x.stroke();}else{x.moveTo(111,189);x.quadraticCurveTo(128,199,145,189);x.stroke();}
+  if(cfg.beard==='stubble'){x.fillStyle='#2a201855';x.beginPath();x.ellipse(128,176,26,8,0,0,7);x.fill();x.beginPath();x.ellipse(128,218,40,22,0,0,7);x.fill();x.fillStyle='#2a201833';x.beginPath();x.ellipse(62,185,14,26,.3,0,7);x.fill();x.beginPath();x.ellipse(194,185,14,26,-.3,0,7);x.fill();}
+  if(cfg.beard==='mustache'){x.fillStyle='#2a201844';x.beginPath();x.ellipse(128,176,22,6,0,0,7);x.fill();}
+  _fc[k]=c;return c;}
+function hair2D(c,cx,cy,R,style,color){const drop={crop:.95,swept:.92,neat:.82,side:.8,curtain:.8,fringe:.72,natural:.72,fluffy:.72,curtainL:.74,wavyL:.74,bowl:.68,blunt:.6,heavy:.55}[style]||.74;
+  c.save();c.fillStyle=color;c.beginPath();c.ellipse(cx,cy-R*drop,R*1.05,R*.72,0,0,7);c.fill();
+  if(style==='curtainL'||style==='wavyL'){[-1,1].forEach(s=>{c.beginPath();c.ellipse(cx+s*R*.92,cy+R*.05,R*.28,R*.7,0,0,7);c.fill();});}
+  if(style==='fluffy'){[-1,1].forEach(s=>{c.beginPath();c.arc(cx+s*R*.82,cy-R*.45,R*.36,0,7);c.fill();});}
+  if(style==='side'||style==='swept'){c.beginPath();c.ellipse(cx-R*.3,cy-R*.62,R*.5,R*.22,-.5,0,7);c.fill();}c.restore();}
+function head(p,size,R){const cv=document.createElement('canvas');cv.width=cv.height=size;const c=cv.getContext('2d'),cx=size/2,cy=size/2;
+  c.beginPath();c.arc(cx,cy,R+3,0,7);c.fillStyle=TEAM[p.t].c;c.fill();c.beginPath();c.arc(cx,cy,R,0,7);c.fillStyle=p.f.s;c.fill();
+  c.save();c.beginPath();c.arc(cx,cy,R,0,7);c.clip();hair2D(c,cx,cy,R,p.f.st,p.f.h);c.drawImage(faceCanvas({eyes:p.f.e,mouth:p.f.m,beard:p.f.b,brow:p.f.br}),cx-R,cy-R,R*2,R*2);c.restore();return cv;}
+
+/* ===== TABS ===== */
+document.querySelectorAll('.tabbtn').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>showTab(b.dataset.go));
+const TNAME={home:'홈',dex:'📇 선수 도감',mv:'🦋 평행우주',ghost:'👻 유령 토너먼트',oracle:'🔮 예언 엔진',scout:'🇰🇷 한국 스카우팅'};
+function showTab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id===id));
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('on',b.dataset.tab===id));
+  const pt=document.getElementById('ptitle');if(pt)pt.textContent=TNAME[id]||'';window.scrollTo(0,0);}
+
+/* ===== DEX ===== */
+const STATS=[{k:'spd',l:'⚡ 최고속도',u:'km/h',fmt:v=>v.toFixed(1),max:36},{k:'spr',l:'🏃 스프린트',u:'회',fmt:v=>v,max:82},{k:'hsr',l:'🏃‍♂️ 고속런',u:'회',fmt:v=>v,max:165},{k:'dist',l:'📏 주행거리',u:'km',fmt:v=>v.toFixed(1),max:12},{k:'lb',l:'🎯 라인브레이크',u:'개',fmt:v=>v,max:18},{k:'rg',l:'🛡 볼탈취',u:'회',fmt:v=>v,max:10}];
+let curStat='spd',curTeam='ALL';
+const recDefs=[['spd','⚡ 최고 속도'],['spr','🏃 최다 스프린트'],['dist','📏 최다 주행'],['lb','🎯 최다 라인브레이크'],['rg','🛡 최다 볼탈취'],['hsr','🏃‍♂️ 최다 고속런']];
+const recEl=document.getElementById('records');
+recDefs.forEach(([k,l])=>{const s=STATS.find(x=>x.k===k);const top=[...P].sort((a,b)=>b[k]-a[k])[0];const d=document.createElement('div');d.className='rec';
+  d.innerHTML=`<div class="l">${l}</div><div class="v">${s.fmt(top[k])} <span style="font-size:12px;color:var(--mut)">${s.u}</span></div><div class="p">${TEAM[top.t].fl} ${top.n}</div>`;recEl.appendChild(d);});
+const lbtabs=document.getElementById('lbtabs');
+STATS.forEach(s=>{const b=document.createElement('button');b.className='btn'+(s.k===curStat?' on':'');b.textContent=s.l;b.dataset.k=s.k;b.onclick=()=>{curStat=s.k;[...lbtabs.children].forEach(x=>x.classList.toggle('on',x.dataset.k===curStat));renderLB();};lbtabs.appendChild(b);});
+function renderLB(){const lb=document.getElementById('lb');lb.innerHTML='';const st=STATS.find(s=>s.k===curStat);const arr=[...P].sort((a,b)=>b[curStat]-a[curStat]).slice(0,12);const max=arr[0][curStat];
+  arr.forEach((p,i)=>{const row=document.createElement('div');row.className='lr';row.innerHTML=`<div class="rk ${i<3?'top':''}">${i+1}</div>`;row.appendChild(head(p,32,14));
+    const nm=document.createElement('div');nm.className='nm';nm.innerHTML=`${TEAM[p.t].fl} <b>${p.n}</b> <span style="color:var(--mut);font-size:11px">${p.po}</span>`;row.appendChild(nm);
+    const bar=document.createElement('div');bar.className='bar';bar.innerHTML=`<i style="width:${p[curStat]/max*100}%"></i>`;row.appendChild(bar);
+    const vv=document.createElement('div');vv.className='vv';vv.textContent=st.fmt(p[curStat])+' '+st.u;row.appendChild(vv);row.onclick=()=>openModal(p);lb.appendChild(row);});}
+const filterEl=document.getElementById('filter');
+[['ALL','전체'],['KOR','🇰🇷한국'],['MEX','🇲🇽멕시코'],['RSA','🇿🇦남아공'],['CZE','🇨🇿체코'],['BRA','🇧🇷브라질'],['MAR','🇲🇦모로코']].forEach(([k,l])=>{const b=document.createElement('button');b.className='btn'+(k===curTeam?' on':'');b.textContent=l;b.onclick=()=>{curTeam=k;[...filterEl.children].forEach(x=>x.classList.toggle('on',x.textContent===l));renderGrid();};filterEl.appendChild(b);});
+function renderGrid(){const g=document.getElementById('grid');g.innerHTML='';P.filter(p=>curTeam==='ALL'||p.t===curTeam).forEach(p=>{const c=document.createElement('div');c.className='pc';c.appendChild(head(p,70,32));
+  const d=document.createElement('div');d.innerHTML=`<div class="nm">${TEAM[p.t].fl} ${p.n}</div><div class="po">#${p.num} · ${p.po}</div><div class="mini"><span><b>${p.spd.toFixed(1)}</b>속도</span><span><b>${p.spr}</b>스프린트</span><span><b>${p.lb}</b>LB</span></div>`;c.appendChild(d);c.onclick=()=>openModal(p);g.appendChild(c);});}
+function openModal(p){const m=document.getElementById('mbox');m.innerHTML='';const x=document.createElement('span');x.className='x';x.textContent='×';x.onclick=()=>document.getElementById('modal').classList.remove('on');m.appendChild(x);
+  const top=document.createElement('div');top.className='top';top.appendChild(head(p,80,37));const h=document.createElement('div');h.innerHTML=`<h3>${TEAM[p.t].fl} ${p.n}</h3><div style="color:var(--mut);font-size:13px">#${p.num} · ${p.po}${p.g?` · ⚽ ${p.g}골`:''}</div>`;top.appendChild(h);m.appendChild(top);
+  const sb=document.createElement('div');sb.style.marginTop='12px';STATS.forEach(s=>{const row=document.createElement('div');row.className='mstat';row.innerHTML=`<div class="l"><span>${s.l}</span><b>${s.fmt(p[s.k])} ${s.u}</b></div><div class="bar"><i style="width:${Math.min(100,p[s.k]/s.max*100)}%"></i></div>`;sb.appendChild(row);});m.appendChild(sb);document.getElementById('modal').classList.add('on');}
+document.getElementById('modal').onclick=e=>{if(e.target.id==='modal')e.target.classList.remove('on');};
+renderLB();renderGrid();
+
+/* ===== MULTIVERSE ===== */
+const BASE_M=1.35,BASE_K=1.15;
+const SCN=[{id:'alt',t:'🏔 고지대(과달라하라) 효과',d:'멕시코 체력·홈 우위 / 한국 피로',dm:0.15,dk:-0.10,on:true},
+ {id:'montes',t:'🟥→✅ 몬테스 복귀',d:'서스펜드 해제 → 멕시코 백라인 강화',dm:0,dk:-0.20,on:false},
+ {id:'son',t:'⚡ 손흥민 풀타임',d:'69분 교체 없이 끝까지 → 한국 전환 위협↑',dm:0,dk:0.25,on:false},
+ {id:'press',t:'🔥 한국 하이프레스 채택',d:'딥블록 대신 전진압박 = 멕시코 배후 공간↑',dm:0.22,dk:0.10,on:false},
+ {id:'deep',t:'🛡 한국 극단 딥블록·카운터',d:'더 깊게 막고 역습 한 방',dm:-0.15,dk:0.15,on:false},
+ {id:'alv',t:'🤕 멕시코 알바레스 결장(가상)',d:'피벗 부재 → 중원 흔들림',dm:-0.25,dk:0.05,on:false}];
+const fact=n=>{let r=1;for(let i=2;i<=n;i++)r*=i;return r;};
+const pois=(k,l)=>Math.pow(l,k)*Math.exp(-l)/fact(k);
+function probs(lm,lk){let pm=0,pd=0,pk=0;for(let i=0;i<=8;i++)for(let j=0;j<=8;j++){const p=pois(i,lm)*pois(j,lk);if(i>j)pm+=p;else if(i===j)pd+=p;else pk+=p;}const s=pm+pd+pk;return[pm/s,pd/s,pk/s];}
+const scEl=document.getElementById('scenarios');
+SCN.forEach(s=>{const d=document.createElement('div');d.className='sc'+(s.on?' on':'');const eff=`${s.dm>=0?'+':''}${s.dm.toFixed(2)} 🇲🇽 · ${s.dk>=0?'+':''}${s.dk.toFixed(2)} 🇰🇷`;
+  d.innerHTML=`<div class="sw"></div><div><div class="t">${s.t}</div><div class="d">${s.d}</div><div class="e" style="color:${s.dm-s.dk>0?'#16a34a':'#e23b54'}">${eff}</div></div>`;
+  d.onclick=()=>{s.on=!s.on;d.classList.toggle('on',s.on);renderMV();};scEl.appendChild(d);});
+function renderMV(){let lm=BASE_M,lk=BASE_K;SCN.forEach(s=>{if(s.on){lm+=s.dm;lk+=s.dk;}});lm=Math.max(.25,Math.min(3.6,lm));lk=Math.max(.25,Math.min(3.6,lk));
+  document.getElementById('xgm').textContent=lm.toFixed(2);document.getElementById('xgk').textContent=lk.toFixed(2);const tot=lm+lk;
+  document.getElementById('bm').style.width=(lm/tot*100)+'%';document.getElementById('bk').style.width=(lk/tot*100)+'%';
+  document.getElementById('sm').textContent=Math.round(lm);document.getElementById('sk').textContent=Math.round(lk);
+  const [pm,pd,pk]=probs(lm,lk);document.getElementById('pm').textContent=Math.round(pm*100)+'%';document.getElementById('pd').textContent=Math.round(pd*100)+'%';document.getElementById('pk').textContent=Math.round(pk*100)+'%';
+  document.getElementById('pm').style.width=(pm*100)+'%';document.getElementById('pd').style.width=(pd*100)+'%';document.getElementById('pk').style.width=(pk*100)+'%';
+  let fav=pm>pk+0.06?'멕시코가 고지대·점유로 주도권을 쥔다':pk>pm+0.06?'한국이 전환 한 방으로 균형을 깬다':'완벽한 동전던지기 — 한 번의 전환/세트피스가 가른다';
+  let txt=`이 우주에서는 <b>${fav}</b>. `;
+  if(SCN.find(s=>s.id==='press').on)txt+='한국 하이프레스로 멕시코 배후가 열리는 양날의 검. ';
+  if(SCN.find(s=>s.id==='son').on)txt+='손흥민이 끝까지 뛰어 35.2km/h 스피드가 후반에도 살아있다. ';
+  if(SCN.find(s=>s.id==='montes').on)txt+='몬테스 복귀로 백라인이 단단해 손흥민 침투가 막힌다. ';
+  if(SCN.find(s=>s.id==='alv').on)txt+='알바레스 공백으로 황인범이 중원을 지배한다. ';
+  txt+=`예상 스코어 <b>멕시코 ${Math.round(lm)} : ${Math.round(lk)} 한국</b>.`;
+  document.getElementById('narr').innerHTML=txt;}
+renderMV();
+</script>
+</body>
+</html>
