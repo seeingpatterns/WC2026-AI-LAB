@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>WC2026 선수 능력치 도감 — FIFA EFI 실측</title>
+<style>
+  :root{--bg:#0a0f15;--panel:#121a24;--card:#15202c;--line:#26333f;--txt:#eaf0f6;--mut:#9fb2c4;--gold:#f1c40f}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",Roboto,sans-serif;line-height:1.5}
+  header{padding:15px 18px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,rgba(241,196,15,.12),transparent)}
+  h1{margin:0;font-size:18px}
+  h1 small{display:block;color:var(--mut);font-weight:500;font-size:12px;margin-top:3px}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px}
+  h2{font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin:20px 0 10px}
+  .records{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
+  .rec{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;border-top:3px solid var(--gold)}
+  .rec .l{font-size:11px;color:var(--mut)}
+  .rec .v{font-size:20px;font-weight:900;margin:2px 0}
+  .rec .p{font-size:12.5px;font-weight:700}
+  .tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+  .tabs button,.filter button{background:var(--panel);color:var(--txt);border:1px solid var(--line);padding:7px 12px;border-radius:20px;font-size:13px;cursor:pointer}
+  .tabs button.on{background:var(--gold);color:#1a1300;font-weight:800;border-color:var(--gold)}
+  .lb{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+  .lr{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #1c2731}
+  .lr:last-child{border-bottom:none}
+  .lr .rk{width:22px;text-align:center;font-weight:900;color:var(--mut)}
+  .lr .rk.top{color:var(--gold)}
+  .lr canvas{border-radius:50%}
+  .lr .nm{flex:1;font-size:13.5px}
+  .lr .nm b{font-weight:700}
+  .lr .fl{font-size:13px}
+  .lr .bar{flex:1.4;height:8px;background:#0e1822;border-radius:6px;overflow:hidden;max-width:280px}
+  .lr .bar>i{display:block;height:100%;background:linear-gradient(90deg,#f1c40f,#f6d44f);border-radius:6px}
+  .lr .vv{width:78px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums;font-size:13.5px}
+  .filter{display:flex;gap:7px;flex-wrap:wrap;margin:6px 0 12px}
+  .filter button.on{background:#26405a;border-color:#4a6a88;font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:11px}
+  .pc{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px;text-align:center;cursor:pointer;transition:.15s}
+  .pc:hover{transform:translateY(-2px);border-color:var(--gold)}
+  .pc .nm{font-weight:700;font-size:13.5px;margin-top:6px}
+  .pc .po{font-size:11px;color:var(--mut)}
+  .pc .mini{display:flex;justify-content:center;gap:9px;margin-top:7px;font-size:11px}
+  .pc .mini b{display:block;font-size:13px;color:var(--gold)}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+  .modal.on{display:flex}
+  .mbox{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;max-width:380px;width:100%}
+  .mbox .top{display:flex;gap:12px;align-items:center}
+  .mbox h3{margin:0;font-size:19px}
+  .mbox .po{color:var(--mut);font-size:13px}
+  .mbox .stats{margin-top:12px}
+  .mstat{margin:8px 0}
+  .mstat .l{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px}
+  .mstat .l b{color:var(--gold)}
+  .mstat .bar{height:7px;background:#0e1822;border-radius:6px;overflow:hidden}
+  .mstat .bar>i{display:block;height:100%;background:linear-gradient(90deg,#f1c40f,#f6d44f);border-radius:6px}
+  .x{float:right;cursor:pointer;color:var(--mut);font-size:20px;line-height:1}
+  .note{font-size:11px;color:var(--mut);border-top:1px dashed var(--line);padding-top:11px;margin-top:22px;line-height:1.6}
+  .note a{color:#7fb6ff}
+</style>
+</head>
+<body>
+<header>
+  <h1>📇 WC2026 선수 능력치 도감 <small>FIFA EFI 실측 트래킹(Hawk-Eye) 기반 · Group A 4팀(🇲🇽🇿🇦🇰🇷🇨🇿) · 대회 진행되며 확장</small></h1>
+</header>
+<div class="wrap">
+  <h2>🏆 대회 기록 (현재까지)</h2>
+  <div class="records" id="records"></div>
+
+  <h2>📊 랭킹 리더보드</h2>
+  <div class="tabs" id="tabs"></div>
+  <div class="lb" id="lb"></div>
+
+  <h2>🗂️ 전체 도감</h2>
+  <div class="filter" id="filter"></div>
+  <div class="grid" id="grid"></div>
+
+  <div class="note">
+    ✅ 모든 수치는 <b>FIFA Training Centre EFI(Hawk-Eye 트래킹)</b> 실측. 현재 Group A 1차전 2경기(M01 멕시코-남아공 / M02 한국-체코) 주요 선수. 다른 경기 EFI 추가 시 랭킹 자동 확장. 얼굴은 식별용 캐릭터(사진 아님).<br>
+    Source: <a href="https://www.fifatrainingcentre.com/en/fifa-world-cup-2026/match-report-hub.php">FIFA EFI Match Report Hub</a>
+  </div>
+</div>
+
+<div class="modal" id="modal"><div class="mbox" id="mbox"></div></div>
+
+<script>
+// ── 얼굴 시스템 (animeFace 포팅) ──
+const _fc={};
+function faceCanvas(cfg){const k=JSON.stringify(cfg);if(_fc[k])return _fc[k];
+  const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');const ey=118;
+  function eye(cx,fl){x.save();x.translate(cx,ey);if(fl)x.scale(-1,1);
+    if(cfg.eyes==='smile'){x.strokeStyle='#23150f';x.lineWidth=7;x.lineCap='round';x.beginPath();x.arc(0,7,17,Math.PI*1.15,Math.PI*1.85);x.stroke();}
+    else{x.fillStyle='#fff';x.beginPath();x.ellipse(0,0,17,cfg.eyes==='sharp'?14:19,0,0,7);x.fill();x.strokeStyle='#23150f';x.lineWidth=4;x.stroke();
+      const g=x.createRadialGradient(0,2,2,0,3,13);g.addColorStop(0,'#000');g.addColorStop(.45,cfg.iris||'#3a2417');g.addColorStop(1,'#120a05');
+      x.fillStyle=g;x.beginPath();x.ellipse(1,3,10,cfg.eyes==='sharp'?10:13,0,0,7);x.fill();
+      x.fillStyle='#fff';x.beginPath();x.ellipse(-3,-2,3.5,4.5,0,0,7);x.fill();
+      x.strokeStyle='#23150f';x.lineWidth=6;x.lineCap='round';x.beginPath();
+      if(cfg.eyes==='sharp'){x.moveTo(-18,-8);x.quadraticCurveTo(0,-17,19,-4);}else{x.moveTo(-17,-11);x.quadraticCurveTo(0,-19,17,-11);}x.stroke();}
+    x.restore();}
+  eye(84,false);eye(172,true);
+  x.strokeStyle='#1c1108';x.lineWidth=7;x.lineCap='round';
+  [[84],[172]].forEach(([cx])=>{x.beginPath();x.moveTo(cx-19,84);x.quadraticCurveTo(cx,75-(cfg.brow||0)*7,cx+19,84+(cfg.brow||0)*5);x.stroke();});
+  x.strokeStyle='#c98e63';x.lineWidth=3.5;x.beginPath();x.moveTo(128,150);x.lineTo(124,161);x.stroke();
+  x.strokeStyle='#8a3f2c';x.lineWidth=5;x.lineCap='round';x.beginPath();
+  if(cfg.mouth==='grin'){x.moveTo(107,188);x.quadraticCurveTo(128,204,149,188);x.stroke();x.fillStyle='#fff';x.beginPath();x.moveTo(110,190);x.quadraticCurveTo(128,201,146,190);x.quadraticCurveTo(128,196,110,190);x.fill();}
+  else if(cfg.mouth==='flat'){x.moveTo(116,191);x.lineTo(140,191);x.stroke();}else{x.moveTo(111,189);x.quadraticCurveTo(128,199,145,189);x.stroke();}
+  if(cfg.beard==='stubble'){x.fillStyle='#2a201855';x.beginPath();x.ellipse(128,176,26,8,0,0,7);x.fill();x.beginPath();x.ellipse(128,218,40,22,0,0,7);x.fill();x.fillStyle='#2a201833';x.beginPath();x.ellipse(62,185,14,26,.3,0,7);x.fill();x.beginPath();x.ellipse(194,185,14,26,-.3,0,7);x.fill();}
+  if(cfg.beard==='mustache'){x.fillStyle='#2a201844';x.beginPath();x.ellipse(128,176,22,6,0,0,7);x.fill();}
+  _fc[k]=c;return c;}
+function hair2D(c,cx,cy,R,style,color){
+  const drop={crop:.95,swept:.92,neat:.82,side:.8,curtain:.8,fringe:.72,natural:.72,fluffy:.72,curtainL:.74,wavyL:.74,bowl:.68,blunt:.6,heavy:.55,bald:2}[style]||.74;
+  if(style==='bald')return;
+  c.save();c.fillStyle=color;c.beginPath();c.ellipse(cx,cy-R*drop,R*1.05,R*.72,0,0,7);c.fill();
+  if(style==='curtainL'||style==='wavyL'){[-1,1].forEach(s=>{c.beginPath();c.ellipse(cx+s*R*.92,cy+R*.05,R*.28,R*.7,0,0,7);c.fill();});}
+  if(style==='fluffy'){[-1,1].forEach(s=>{c.beginPath();c.arc(cx+s*R*.82,cy-R*.45,R*.36,0,7);c.fill();});}
+  if(style==='side'||style==='swept'){c.beginPath();c.ellipse(cx-R*.3,cy-R*.62,R*.5,R*.22,-.5,0,7);c.fill();}
+  c.restore();}
+function drawHead(cv,p,R){const c=cv.getContext('2d');const W=cv.width,H=cv.height,cx=W/2,cy=H/2;c.clearRect(0,0,W,H);
+  c.beginPath();c.arc(cx,cy,R+3,0,7);c.fillStyle=TEAM[p.t].c;c.fill();
+  c.beginPath();c.arc(cx,cy,R,0,7);c.fillStyle=p.f.s;c.fill();
+  c.save();c.beginPath();c.arc(cx,cy,R,0,7);c.clip();
+  hair2D(c,cx,cy,R,p.f.st,p.f.h);
+  c.drawImage(faceCanvas({eyes:p.f.e,mouth:p.f.m,beard:p.f.b,brow:p.f.br}),cx-R,cy-R,R*2,R*2);
+  c.restore();}
+
+const TEAM={KOR:{c:'#c8102e',fl:'🇰🇷'},MEX:{c:'#0a7c3a',fl:'🇲🇽'},RSA:{c:'#e8a300',fl:'🇿🇦'},CZE:{c:'#1b4a8a',fl:'🇨🇿'}};
+// f: s=skin h=hair st=style e=eyes m=mouth b=beard br=brow
+const KS='#f6cfa6',MS='#d9a06f',RS='#7a5236',CS='#f0d2b0';
+function F(s,h,st,e,m,b,br){return{s,h,st,e,m,b,br};}
+const P=[
+ // KOR
+ {t:'KOR',num:7,n:'손흥민',po:'FW',spd:35.2,spr:38,hsr:58,dist:7.0,lb:3,rg:0,g:0,f:F(KS,'#241a10','side','smile','grin',0,0)},
+ {t:'KOR',num:22,n:'설영우',po:'RWB',spd:31.8,spr:53,hsr:115,dist:11.28,lb:4,rg:2,g:0,f:F(KS,'#2a1d12','fluffy','round','grin',0,0)},
+ {t:'KOR',num:4,n:'김민재',po:'CB',spd:31.9,spr:35,hsr:113,dist:10.12,lb:6,rg:9,g:0,f:F(KS,'#171008','crop','sharp','flat','stubble',1)},
+ {t:'KOR',num:6,n:'황인범',po:'MF',spd:28.5,spr:36,hsr:111,dist:9.52,lb:11,rg:3,g:1,f:F(KS,'#241a10','fringe','calm','smile',0,0)},
+ {t:'KOR',num:19,n:'이강인',po:'AM',spd:28.8,spr:22,hsr:88,dist:9.53,lb:11,rg:0,g:0,f:F(KS,'#241a10','curtainL','sharp','smile',0,0)},
+ {t:'KOR',num:3,n:'이기혁',po:'CB',spd:29.2,spr:51,hsr:158,dist:10.66,lb:13,rg:7,g:0,f:F(KS,'#2a1d12','blunt','calm','flat',0,0)},
+ {t:'KOR',num:2,n:'이한범',po:'CB',spd:30.1,spr:39,hsr:117,dist:10.26,lb:11,rg:8,g:0,f:F(KS,'#2a1d12','curtain','calm','smile',0,0)},
+ {t:'KOR',num:8,n:'백승호',po:'MF',spd:29.3,spr:20,hsr:115,dist:9.35,lb:12,rg:2,g:0,f:F(KS,'#2a1d12','neat','calm','flat',0,0)},
+ {t:'KOR',num:18,n:'오현규',po:'FW',spd:29.1,spr:15,hsr:31,dist:3.04,lb:0,rg:0,g:1,f:F(KS,'#241a10','crop','round','grin',0,0)},
+ // MEX
+ {t:'MEX',num:9,n:'R.히메네스',po:'FW',spd:33.3,spr:33,hsr:67,dist:7.50,lb:2,rg:2,g:1,f:F(MS,'#0f0a05','neat','sharp','flat','mustache',0)},
+ {t:'MEX',num:16,n:'키뇨네스',po:'FW',spd:32.9,spr:42,hsr:115,dist:8.83,lb:12,rg:1,g:1,f:F('#cf9760','#0f0a05','crop','sharp','grin','stubble',0)},
+ {t:'MEX',num:25,n:'알바라도',po:'RW',spd:32.2,spr:43,hsr:116,dist:10.03,lb:8,rg:5,g:0,f:F(MS,'#100b06','crop','round','smile',0,0)},
+ {t:'MEX',num:5,n:'바스케스',po:'CB',spd:27.9,spr:33,hsr:102,dist:10.05,lb:13,rg:3,g:0,f:F('#cf9760','#0f0a05','neat','sharp','flat','stubble',1)},
+ {t:'MEX',num:8,n:'피달고',po:'MF',spd:30.8,spr:49,hsr:132,dist:8.58,lb:4,rg:1,g:0,f:F(MS,'#100b06','fluffy','round','smile',0,0)},
+ {t:'MEX',num:15,n:'레예스',po:'DF',spd:30.0,spr:27,hsr:117,dist:10.27,lb:9,rg:3,g:0,f:F(MS,'#100b06','fringe','calm','flat',0,0)},
+ {t:'MEX',num:23,n:'가야르도',po:'LB',spd:30.3,spr:29,hsr:86,dist:9.69,lb:5,rg:8,g:0,f:F(MS,'#0f0a05','side','calm','flat','mustache',0)},
+ {t:'MEX',num:6,n:'리라',po:'MF',spd:31.4,spr:27,hsr:103,dist:8.88,lb:10,rg:1,g:0,f:F(MS,'#100b06','crop','calm','smile',0,0)},
+ {t:'MEX',num:3,n:'몬테스',po:'CB',spd:30.1,spr:25,hsr:72,dist:8.55,lb:12,rg:4,g:0,f:F('#dca877','#c9a86a','neat','sharp','flat','stubble',1)},
+ // RSA
+ {t:'RSA',num:5,n:'음바타',po:'MF',spd:34.4,spr:24,hsr:59,dist:3.97,lb:1,rg:0,g:0,f:F(RS,'#0c0805','crop','round','smile',0,0)},
+ {t:'RSA',num:15,n:'레이너스',po:'FW',spd:34.1,spr:41,hsr:82,dist:8.15,lb:2,rg:0,g:0,f:F(RS,'#0c0805','crop','sharp','grin',0,0)},
+ {t:'RSA',num:20,n:'무다우',po:'DF',spd:33.3,spr:48,hsr:100,dist:9.34,lb:4,rg:2,g:0,f:F('#6b4a32','#0c0805','crop','calm','flat','stubble',0)},
+ {t:'RSA',num:4,n:'모케나',po:'MF',spd:31.4,spr:44,hsr:136,dist:9.86,lb:11,rg:4,g:0,f:F(RS,'#0c0805','fringe','calm','smile',0,0)},
+ {t:'RSA',num:21,n:'오콘',po:'DF',spd:31.6,spr:52,hsr:119,dist:9.56,lb:6,rg:9,g:0,f:F('#6b4a32','#0c0805','crop','sharp','flat',0,1)},
+ {t:'RSA',num:19,n:'시비시',po:'DF',spd:29.9,spr:38,hsr:101,dist:9.39,lb:14,rg:5,g:0,f:F(RS,'#0c0805','crop','calm','flat','stubble',0)},
+ {t:'RSA',num:14,n:'음보카지',po:'DF',spd:31.5,spr:43,hsr:91,dist:8.87,lb:3,rg:5,g:0,f:F('#6b4a32','#0c0805','crop','sharp','flat',0,0)},
+ {t:'RSA',num:9,n:'포스터',po:'FW',spd:31.2,spr:16,hsr:66,dist:5.97,lb:0,rg:0,g:0,f:F(RS,'#0c0805','crop','round','grin','stubble',0)},
+ // CZE
+ {t:'CZE',num:6,n:'할로우펙',po:'DF',spd:34.0,spr:46,hsr:141,dist:10.87,lb:6,rg:9,g:0,f:F(CS,'#3a2a18','neat','sharp','flat','stubble',1)},
+ {t:'CZE',num:17,n:'프로보드',po:'MF',spd:33.3,spr:45,hsr:109,dist:7.93,lb:3,rg:2,g:0,f:F(CS,'#6b4a28','fringe','calm','smile',0,0)},
+ {t:'CZE',num:5,n:'쿠팔',po:'DF',spd:30.6,spr:48,hsr:145,dist:11.39,lb:3,rg:2,g:0,f:F(CS,'#2a1d10','neat','sharp','flat','stubble',0)},
+ {t:'CZE',num:24,n:'소이카',po:'MF',spd:29.9,spr:50,hsr:163,dist:10.70,lb:6,rg:3,g:0,f:F(CS,'#caa86a','fluffy','calm','smile',0,0)},
+ {t:'CZE',num:22,n:'소우첵',po:'MF',spd:27.5,spr:30,hsr:153,dist:11.83,lb:6,rg:1,g:0,f:F(CS,'#3a2a18','crop','calm','flat','stubble',1)},
+ {t:'CZE',num:7,n:'크레이치',po:'DF',spd:26.5,spr:27,hsr:136,dist:10.88,lb:8,rg:3,g:1,f:F(CS,'#caa86a','neat','sharp','flat',0,1)},
+ {t:'CZE',num:20,n:'젤레니',po:'DF',spd:30.4,spr:49,hsr:96,dist:10.85,lb:7,rg:4,g:0,f:F(CS,'#3a2a18','neat','calm','flat',0,0)},
+ {t:'CZE',num:10,n:'시크',po:'FW',spd:28.9,spr:28,hsr:90,dist:8.05,lb:0,rg:0,g:0,f:F(CS,'#2a1d10','swept','sharp','grin','stubble',0)},
+ {t:'CZE',num:18,n:'사딜렉',po:'MF',spd:29.3,spr:30,hsr:71,dist:3.92,lb:2,rg:1,g:0,f:F(CS,'#3a2a18','fringe','calm','smile',0,0)}
+];
+const STATS=[
+ {k:'spd',l:'⚡ 최고속도',u:'km/h',fmt:v=>v.toFixed(1)},
+ {k:'spr',l:'🏃 스프린트',u:'회',fmt:v=>v},
+ {k:'hsr',l:'🏃‍♂️ 고속런',u:'회',fmt:v=>v},
+ {k:'dist',l:'📏 주행거리',u:'km',fmt:v=>v.toFixed(1)},
+ {k:'lb',l:'🎯 라인브레이크',u:'개',fmt:v=>v},
+ {k:'rg',l:'🛡 볼탈취',u:'회',fmt:v=>v}
+];
+let curStat='spd', curTeam='ALL';
+
+function recHead(p,size,R){const cv=document.createElement('canvas');cv.width=cv.height=size;drawHead(cv,p,R);return cv;}
+
+// records
+const recDefs=[['spd','⚡ 최고 속도','km/h'],['spr','🏃 최다 스프린트','회'],['dist','📏 최다 주행','km'],['lb','🎯 최다 라인브레이크','개'],['rg','🛡 최다 볼탈취','회'],['hsr','🏃‍♂️ 최다 고속런','회']];
+const recEl=document.getElementById('records');
+recDefs.forEach(([k,l,u])=>{const top=[...P].sort((a,b)=>b[k]-a[k])[0];
+  const d=document.createElement('div');d.className='rec';
+  d.innerHTML=`<div class="l">${l}</div><div class="v">${STATS.find(s=>s.k===k).fmt(top[k])} <span style="font-size:12px;color:var(--mut)">${u}</span></div><div class="p">${TEAM[top.t].fl} ${top.n}</div>`;
+  recEl.appendChild(d);});
+
+// tabs
+const tabsEl=document.getElementById('tabs');
+STATS.forEach(s=>{const b=document.createElement('button');b.textContent=s.l;b.dataset.k=s.k;if(s.k===curStat)b.className='on';
+  b.onclick=()=>{curStat=s.k;[...tabsEl.children].forEach(x=>x.classList.toggle('on',x.dataset.k===curStat));renderLB();};tabsEl.appendChild(b);});
+
+function renderLB(){const lb=document.getElementById('lb');lb.innerHTML='';
+  const st=STATS.find(s=>s.k===curStat);
+  const arr=[...P].sort((a,b)=>b[curStat]-a[curStat]).slice(0,12);
+  const max=arr[0][curStat];
+  arr.forEach((p,i)=>{const row=document.createElement('div');row.className='lr';
+    const cv=recHead(p,34,15);
+    row.innerHTML=`<div class="rk ${i<3?'top':''}">${i+1}</div>`;
+    row.appendChild(cv);
+    const nm=document.createElement('div');nm.className='nm';nm.innerHTML=`<span class="fl">${TEAM[p.t].fl}</span> <b>${p.n}</b> <span style="color:var(--mut);font-size:11px">${p.po}</span>`;row.appendChild(nm);
+    const bar=document.createElement('div');bar.className='bar';bar.innerHTML=`<i style="width:${p[curStat]/max*100}%"></i>`;row.appendChild(bar);
+    const vv=document.createElement('div');vv.className='vv';vv.textContent=st.fmt(p[curStat])+' '+st.u;row.appendChild(vv);
+    row.onclick=()=>openModal(p);lb.appendChild(row);});}
+
+// filter
+const filterEl=document.getElementById('filter');
+[['ALL','전체'],['KOR','🇰🇷 한국'],['MEX','🇲🇽 멕시코'],['RSA','🇿🇦 남아공'],['CZE','🇨🇿 체코']].forEach(([k,l])=>{
+  const b=document.createElement('button');b.textContent=l;if(k===curTeam)b.className='on';
+  b.onclick=()=>{curTeam=k;[...filterEl.children].forEach(x=>x.classList.toggle('on',x.textContent===l));renderGrid();};filterEl.appendChild(b);});
+
+function renderGrid(){const g=document.getElementById('grid');g.innerHTML='';
+  P.filter(p=>curTeam==='ALL'||p.t===curTeam).forEach(p=>{
+    const c=document.createElement('div');c.className='pc';
+    const cv=recHead(p,72,33);c.appendChild(cv);
+    const d=document.createElement('div');d.innerHTML=`<div class="nm">${TEAM[p.t].fl} ${p.n}</div><div class="po">#${p.num} · ${p.po}</div>
+      <div class="mini"><span><b>${p.spd.toFixed(1)}</b>속도</span><span><b>${p.spr}</b>스프린트</span><span><b>${p.lb}</b>LB</span></div>`;
+    c.appendChild(d);c.onclick=()=>openModal(p);g.appendChild(c);});}
+
+function openModal(p){const m=document.getElementById('mbox');
+  const cv=recHead(p,80,37);
+  const maxes={spd:36,spr:55,hsr:165,dist:12,lb:15,rg:10};
+  m.innerHTML='';
+  const x=document.createElement('span');x.className='x';x.textContent='×';x.onclick=()=>document.getElementById('modal').classList.remove('on');m.appendChild(x);
+  const top=document.createElement('div');top.className='top';top.appendChild(cv);
+  const h=document.createElement('div');h.innerHTML=`<h3>${TEAM[p.t].fl} ${p.n}</h3><div class="po">#${p.num} · ${p.po}${p.g?` · ⚽ ${p.g}골`:''}</div>`;top.appendChild(h);m.appendChild(top);
+  const sb=document.createElement('div');sb.className='stats';
+  STATS.forEach(s=>{const row=document.createElement('div');row.className='mstat';
+    row.innerHTML=`<div class="l"><span>${s.l}</span><b>${s.fmt(p[s.k])} ${s.u}</b></div><div class="bar"><i style="width:${Math.min(100,p[s.k]/maxes[s.k]*100)}%"></i></div>`;sb.appendChild(row);});
+  m.appendChild(sb);document.getElementById('modal').classList.add('on');}
+document.getElementById('modal').onclick=e=>{if(e.target.id==='modal')e.target.classList.remove('on');};
+
+renderLB();renderGrid();
+</script>
+</body>
+</html>
